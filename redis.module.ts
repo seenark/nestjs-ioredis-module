@@ -6,12 +6,8 @@ import {
   Provider,
 } from "@nestjs/common";
 import IORedis, { Redis, RedisOptions } from "ioredis";
+import { RedisService } from "./redis.service";
 
-/**
- * to be using the IORedis provider please inject IOREDIS_KEY into constructor
- * @Inject(IOREDIS_KEY) ioredis: Redis
- *
- */
 export const IOREDIS_KEY = "IORedis";
 
 type RedisModuleOptions = {
@@ -26,7 +22,10 @@ type RedisAsyncModuleOptions = {
 } & Pick<ModuleMetadata, "imports"> &
   Pick<FactoryProvider, "inject">;
 
-@Module({})
+@Module({
+  providers: [],
+  exports: [],
+})
 export class RedisModule {
   static register(options: RedisModuleOptions): DynamicModule {
     const client = new IORedis(options.connectionOptions);
@@ -37,10 +36,11 @@ export class RedisModule {
     };
     return {
       module: RedisModule,
-      providers: [redisProvider],
+      providers: [redisProvider, RedisService],
       imports: [],
-      exports: [redisProvider],
+      exports: [RedisService],
       controllers: [],
+      //   global: true,
     };
   }
   static async registerAsync({
@@ -64,9 +64,9 @@ export class RedisModule {
     return {
       module: RedisModule,
       imports: imports,
-      providers: [redisProvider],
-      exports: [redisProvider],
-      global: true,
+      providers: [redisProvider, RedisService],
+      exports: [RedisService],
+      //   global: true,
     };
   }
 }
